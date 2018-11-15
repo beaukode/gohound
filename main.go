@@ -16,22 +16,8 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/beaukode/gohound/backend"
 )
 
-// MongoURL Url de connexion au cluster
-const MongoURL = "mongodb://gomon:dZExedYpYy5ATCVA@mdbcluster-shard-00-00-nlhts.gcp.mongodb.net:27017,mdbcluster-shard-00-01-nlhts.gcp.mongodb.net:27017,mdbcluster-shard-00-02-nlhts.gcp.mongodb.net:27017/pingdog?ssl=true&replicaSet=mdbcluster-shard-0&authSource=admin"
-
 func main() {
-	backend, err := backend.NewMongoDb(MongoURL, "hounds")
-	defer backend.Close()
-	if err != nil {
-		fmt.Println(err)
-	}
-	hounds, err := backend.GetNextHounds(10)
-	fmt.Printf("Got %d hounds to do\n", len(hounds))
-	hounds, err = backend.GetNextHounds(10)
-	fmt.Printf("Got %d hounds to do\n", len(hounds))
 	fmt.Println("The End.")
 }
