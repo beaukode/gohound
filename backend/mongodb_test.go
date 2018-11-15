@@ -18,7 +18,6 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
-	"testing"
 	"time"
 
 	"github.com/beaukode/gohound/backend"
@@ -29,19 +28,16 @@ import (
 	. "gopkg.in/check.v1"
 )
 
-// Hook up gocheck into the "go test" runner.
-func Test(t *testing.T) { TestingT(t) }
-
-type S struct {
+type MongodbSuite struct {
 	url        string
 	collection *mgo.Collection
 }
 
-var _ = Suite(&S{})
+var _ = Suite(&MongodbSuite{})
 
 var mongodb = flag.Bool("mongodb", false, "Include mongodb tests")
 
-func (s *S) SetUpSuite(c *C) {
+func (s *MongodbSuite) SetUpSuite(c *C) {
 	if !*mongodb {
 		c.Skip("-mongodb not provided")
 	}
@@ -57,7 +53,7 @@ func (s *S) SetUpSuite(c *C) {
 	s.collection = session.DB("").C(name)
 }
 
-func (s *S) SetUpTest(c *C) {
+func (s *MongodbSuite) SetUpTest(c *C) {
 	s.collection.DropCollection()
 	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC)})
 	s.collection.Insert(bson.M{"houndtype": "http-response", "nexttime": time.Date(2018, 11, 9, 12, 0, 0, 0, time.UTC)})
@@ -65,20 +61,20 @@ func (s *S) SetUpTest(c *C) {
 	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2200, 11, 9, 12, 0, 0, 0, time.UTC)})
 }
 
-func (s *S) TestNewMongoDb(c *C) {
+func (s *MongodbSuite) TestNewMongoDb(c *C) {
 	mdb, err := backend.NewMongoDb(s.url, s.collection.Name)
 	c.Assert(err, IsNil)
 	c.Assert(mdb, FitsTypeOf, &backend.MongoDb{})
 }
 
-func (s *S) TestGetNextHoundsReturnOnlyTodo(c *C) {
+func (s *MongodbSuite) TestGetNextHoundsReturnOnlyTodo(c *C) {
 	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
 	r, err := mdb.GetNextHounds(10)
 	c.Assert(err, IsNil)
 	c.Assert(r, HasLen, 3)
 }
 
-func (s *S) TestGetNextHoundsUseLimit(c *C) {
+func (s *MongodbSuite) TestGetNextHoundsUseLimit(c *C) {
 	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
 	r, err := mdb.GetNextHounds(2)
 	c.Assert(err, IsNil)
