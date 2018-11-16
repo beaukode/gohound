@@ -67,16 +67,16 @@ func (s *MongodbSuite) TestNewMongoDb(c *C) {
 	c.Assert(mdb, FitsTypeOf, &backend.MongoDb{})
 }
 
-func (s *MongodbSuite) TestGetNextHoundsReturnOnlyTodo(c *C) {
+func (s *MongodbSuite) TestGetNextTodoReturnOnlyTodo(c *C) {
 	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
-	r, err := mdb.GetNextHounds(10)
+	r, err := mdb.GetNextTodo(10)
 	c.Assert(err, IsNil)
 	c.Assert(r, HasLen, 3)
 }
 
-func (s *MongodbSuite) TestGetNextHoundsUseLimit(c *C) {
+func (s *MongodbSuite) TestGetNextTodoUseLimit(c *C) {
 	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
-	r, err := mdb.GetNextHounds(2)
+	r, err := mdb.GetNextTodo(2)
 	c.Assert(err, IsNil)
 	c.Assert(r, HasLen, 2)
 }
