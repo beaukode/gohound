@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.11
+      - image: circleci/mongo:4.0-ram
+        command: ["mongod", "--nojournal", "--noprealloc", "--smallfiles", "--dbpath=/dev/shm/mongo", "--port=47017"]
     working_directory: /go/src/github.com/beaukode/gohound
     steps:
       - checkout
@@ -10,6 +12,7 @@ jobs:
           keys:
             - v1-pkg-cache
       - run: go get -v -t -d ./...
+      - run: sleep 5 && nc -vz localhost 47017 # Waiting mongo to be ready
       - run: go test -v ./... -mongodb
       - save_cache:
           key: v1-pkg-cache
