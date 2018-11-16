@@ -16,6 +16,7 @@ package backend
 
 import (
 	"os"
+	"time"
 
 	"github.com/beaukode/gohound/app"
 	"gopkg.in/yaml.v2"
@@ -24,6 +25,7 @@ import (
 // File Use a yaml file to get probes
 type File struct {
 	config config
+	probes []app.ProbeInfo
 }
 
 type probe struct {
@@ -47,14 +49,29 @@ func NewFile(path string) (*File, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &File{config: config}, nil
+
+	probes := make([]app.ProbeInfo, len(config.Probes), len(config.Probes))
+	for i, v := range config.Probes {
+		probes[i].Nexttime = time.Now()
+		probes[i].Probetype = v.Type
+	}
+
+	return &File{config: config, probes: probes}, nil
 }
 
-// GetNextHounds Obtain next hounds to process
-func (f *File) GetNextHounds(count int) ([]app.HoundInfo, error) {
-	result := []app.HoundInfo{}
+// GetNextTodo Obtain next things to do
+func (f *File) GetNextTodo(count int) ([]app.ProbeInfo, error) {
+	var result []app.ProbeInfo
 
-	// TODO
+	now := time.Now()
+	for _, v := range f.probes {
+		if v.Nexttime.Before(now) {
+			result = append(result, v)
+			if len(result) == count {
+				break
+			}
+		}
+	}
 
 	return result, nil
 }

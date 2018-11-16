@@ -46,3 +46,24 @@ func (s *FileSuite) TestNewFileMissingFile(c *C) {
 	c.Assert(err, ErrorMatches, "*no such file or directory")
 	c.Assert(fbe, IsNil)
 }
+
+func (s *FileSuite) TestGetNextTodo(c *C) {
+	todo, err := s.getBackend().GetNextTodo(10)
+	c.Assert(todo, HasLen, 4)
+	c.Assert(err, IsNil)
+	c.Assert(todo[0].Probetype, Equals, "tcp-connect")
+	c.Assert(todo[1].Probetype, Equals, "http-response")
+	c.Assert(todo[2].Probetype, Equals, "tcp-connect")
+	c.Assert(todo[3].Probetype, Equals, "tcp-connect")
+}
+
+func (s *FileSuite) TestGetNextTodoUseLimit(c *C) {
+	todo, err := s.getBackend().GetNextTodo(1)
+	c.Assert(todo, HasLen, 1)
+	c.Assert(err, IsNil)
+}
+
+func (s *FileSuite) getBackend() *backend.File {
+	fbe, _ := backend.NewFile("./file_test.yaml")
+	return fbe
+}
