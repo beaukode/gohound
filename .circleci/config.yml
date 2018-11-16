@@ -10,7 +10,7 @@ jobs:
           keys:
             - v1-pkg-cache
       - run: go get -v -t -d ./...
-      - run: go test -v ./...
+      - run: go test -v ./... -mongodb
       - save_cache:
           key: v1-pkg-cache
           paths:
