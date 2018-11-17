@@ -22,4 +22,6 @@ import (
 type ProbeInfo struct {
 	Probetype string
 	Nexttime  time.Time
+	Lockuid   string
+	Locktime  time.Time
 }

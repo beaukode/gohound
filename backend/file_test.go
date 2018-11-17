@@ -63,6 +63,26 @@ func (s *FileSuite) TestGetNextTodoUseLimit(c *C) {
 	c.Assert(err, IsNil)
 }
 
+func (s *FileSuite) TestGetNextPreventConcurrentAccess(c *C) {
+	fbe := s.getBackend()
+	// Consume 1st probe
+	todo, err := fbe.GetNextTodo(1)
+	c.Assert(todo, HasLen, 1)
+	c.Assert(err, IsNil)
+	c.Assert(todo[0].Probetype, Equals, "tcp-connect")
+
+	// Consume next 3 probes
+	todo, err = fbe.GetNextTodo(3)
+	c.Assert(todo, HasLen, 3)
+	c.Assert(err, IsNil)
+	c.Assert(todo[0].Probetype, Equals, "http-response")
+
+	// No more probe
+	todo, err = fbe.GetNextTodo(10)
+	c.Assert(todo, HasLen, 0)
+	c.Assert(err, IsNil)
+}
+
 func (s *FileSuite) getBackend() *backend.File {
 	fbe, _ := backend.NewFile("./file_test.yaml")
 	return fbe

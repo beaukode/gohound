@@ -25,7 +25,7 @@ import (
 // File Use a yaml file to get probes
 type File struct {
 	config config
-	probes []app.ProbeInfo
+	probes []*app.ProbeInfo
 }
 
 type probe struct {
@@ -50,10 +50,9 @@ func NewFile(path string) (*File, error) {
 		return nil, err
 	}
 
-	probes := make([]app.ProbeInfo, len(config.Probes), len(config.Probes))
+	probes := make([]*app.ProbeInfo, len(config.Probes), len(config.Probes))
 	for i, v := range config.Probes {
-		probes[i].Nexttime = time.Now()
-		probes[i].Probetype = v.Type
+		probes[i] = &app.ProbeInfo{Nexttime: time.Now(), Probetype: v.Type}
 	}
 
 	return &File{config: config, probes: probes}, nil
@@ -63,10 +62,13 @@ func NewFile(path string) (*File, error) {
 func (f *File) GetNextTodo(count int) ([]app.ProbeInfo, error) {
 	var result []app.ProbeInfo
 
+	lockuid := app.GenerateLockUID()
 	now := time.Now()
 	for _, v := range f.probes {
-		if v.Nexttime.Before(now) {
-			result = append(result, v)
+		if v.Nexttime.Before(now) && v.Lockuid == "" {
+			v.Lockuid = lockuid
+			v.Locktime = time.Now()
+			result = append(result, *v)
 			if len(result) == count {
 				break
 			}
