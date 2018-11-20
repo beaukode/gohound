@@ -15,6 +15,8 @@
 package backend_test
 
 import (
+	"time"
+
 	"github.com/beaukode/gohound/backend"
 	. "gopkg.in/check.v1"
 )
@@ -81,6 +83,30 @@ func (s *FileSuite) TestGetNextPreventConcurrentAccess(c *C) {
 	todo, err = fbe.GetNextTodo(10)
 	c.Assert(err, IsNil)
 	c.Assert(todo, HasLen, 0)
+}
+
+func (s *FileSuite) TestUpdate(c *C) {
+	fbe := s.getBackend()
+
+	todo, err := fbe.GetNextTodo(10)
+	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 4)
+
+	probe := todo[0]
+	firstLockuid := probe.Lockuid
+	firstLocktime := probe.Locktime
+	firstProbetype := probe.Probetype
+
+	probe.Lockuid = ""
+	probe.Locktime = time.Time{}
+	fbe.Update(probe)
+
+	todo, err = fbe.GetNextTodo(10)
+	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 1)
+	c.Assert(todo[0].Lockuid, Not(Equals), firstLockuid)
+	c.Assert(todo[0].Locktime, Not(Equals), firstLocktime)
+	c.Assert(todo[0].Probetype, Equals, firstProbetype)
 }
 
 func (s *FileSuite) getBackend() *backend.File {

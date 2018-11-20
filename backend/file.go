@@ -52,7 +52,7 @@ func NewFile(path string) (*File, error) {
 
 	probes := make([]*app.ProbeInfo, len(config.Probes), len(config.Probes))
 	for i, v := range config.Probes {
-		probes[i] = &app.ProbeInfo{Nexttime: time.Now(), Probetype: v.Type}
+		probes[i] = &app.ProbeInfo{Nexttime: time.Now(), Probetype: v.Type, ID: i}
 	}
 
 	return &File{config: config, probes: probes}, nil
@@ -76,6 +76,13 @@ func (f *File) GetNextTodo(count int) ([]app.ProbeInfo, error) {
 	}
 
 	return result, nil
+}
+
+// Update a probe after test is done
+func (f *File) Update(probe app.ProbeInfo) {
+	probe.Lockuid = ""
+	probe.Locktime = time.Time{}
+	f.probes[probe.ID] = &probe
 }
 
 // Close Cleanup & Close

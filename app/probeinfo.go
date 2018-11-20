@@ -20,6 +20,7 @@ import (
 
 // ProbeInfo Hold informations about a probe
 type ProbeInfo struct {
+	ID        int
 	Probetype string
 	Nexttime  time.Time
 	Lockuid   string
