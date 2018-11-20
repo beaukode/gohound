@@ -82,6 +82,7 @@ func (f *File) GetNextTodo(count int) ([]app.ProbeInfo, error) {
 func (f *File) Update(probe app.ProbeInfo) {
 	probe.Lockuid = ""
 	probe.Locktime = time.Time{}
+	probe.Nexttime = time.Now().Add(time.Second * time.Duration(f.config.Probes[probe.ID].Interval))
 	f.probes[probe.ID] = &probe
 }
 

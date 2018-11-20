@@ -1,6 +1,6 @@
 probes:
   - type: "tcp-connect"
-    interval: 30
+    interval: 1
   - type: "http-response"
     interval: 30
   - type: "tcp-connect"

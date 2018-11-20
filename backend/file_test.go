@@ -101,6 +101,14 @@ func (s *FileSuite) TestUpdate(c *C) {
 	probe.Locktime = time.Time{}
 	fbe.Update(probe)
 
+	// Interval not elapsed
+	todo, err = fbe.GetNextTodo(10)
+	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 0)
+
+	time.Sleep(time.Second)
+
+	// Interval elapsed probe must came back with new lock uid & time
 	todo, err = fbe.GetNextTodo(10)
 	c.Assert(err, IsNil)
 	c.Assert(todo, HasLen, 1)
