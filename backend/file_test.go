@@ -49,8 +49,8 @@ func (s *FileSuite) TestNewFileMissingFile(c *C) {
 
 func (s *FileSuite) TestGetNextTodo(c *C) {
 	todo, err := s.getBackend().GetNextTodo(10)
-	c.Assert(todo, HasLen, 4)
 	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 4)
 	c.Assert(todo[0].Probetype, Equals, "tcp-connect")
 	c.Assert(todo[1].Probetype, Equals, "http-response")
 	c.Assert(todo[2].Probetype, Equals, "tcp-connect")
@@ -59,28 +59,28 @@ func (s *FileSuite) TestGetNextTodo(c *C) {
 
 func (s *FileSuite) TestGetNextTodoUseLimit(c *C) {
 	todo, err := s.getBackend().GetNextTodo(1)
-	c.Assert(todo, HasLen, 1)
 	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 1)
 }
 
 func (s *FileSuite) TestGetNextPreventConcurrentAccess(c *C) {
 	fbe := s.getBackend()
 	// Consume 1st probe
 	todo, err := fbe.GetNextTodo(1)
-	c.Assert(todo, HasLen, 1)
 	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 1)
 	c.Assert(todo[0].Probetype, Equals, "tcp-connect")
 
 	// Consume next 3 probes
 	todo, err = fbe.GetNextTodo(3)
-	c.Assert(todo, HasLen, 3)
 	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 3)
 	c.Assert(todo[0].Probetype, Equals, "http-response")
 
 	// No more probe
 	todo, err = fbe.GetNextTodo(10)
-	c.Assert(todo, HasLen, 0)
 	c.Assert(err, IsNil)
+	c.Assert(todo, HasLen, 0)
 }
 
 func (s *FileSuite) getBackend() *backend.File {
