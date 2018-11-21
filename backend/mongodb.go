@@ -37,9 +37,9 @@ func NewMongoDb(url string, collection string) (*MongoDb, error) {
 	return &MongoDb{session: session, collection: session.DB("").C(collection)}, nil
 }
 
-// GetNextHounds Obtain next hounds to process
-func (mdb *MongoDb) GetNextHounds(count int) ([]app.HoundInfo, error) {
-	result := []app.HoundInfo{}
+// GetNextTodo Obtain things to do
+func (mdb *MongoDb) GetNextTodo(count int) ([]app.ProbeInfo, error) {
+	result := []app.ProbeInfo{}
 	err := mdb.collection.Find(bson.M{"nexttime": bson.M{"$lt": time.Now()}}).Limit(count).All(&result)
 
 	return result, err

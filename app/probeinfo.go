@@ -18,8 +18,11 @@ import (
 	"time"
 )
 
-// HoundInfo Hold informations about a hound
-type HoundInfo struct {
-	Houndtype string
+// ProbeInfo Hold informations about a probe
+type ProbeInfo struct {
+	ID        int
+	Probetype string
 	Nexttime  time.Time
+	Lockuid   string
+	Locktime  time.Time
 }
