@@ -67,16 +67,27 @@ func (s *MongodbSuite) TestNewMongoDb(c *C) {
 	c.Assert(mdb, FitsTypeOf, &backend.MongoDb{})
 }
 
-func (s *MongodbSuite) TestGetNextTodoReturnOnlyTodo(c *C) {
-	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
-	r, err := mdb.GetNextTodo(10)
-	c.Assert(err, IsNil)
-	c.Assert(r, HasLen, 3)
+func (s *MongodbSuite) TestGetNextTodo(c *C) {
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestGetNextTodo(c)
 }
 
 func (s *MongodbSuite) TestGetNextTodoUseLimit(c *C) {
-	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
-	r, err := mdb.GetNextTodo(2)
-	c.Assert(err, IsNil)
-	c.Assert(r, HasLen, 2)
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestGetNextTodoUseLimit(c)
+}
+
+func (s *MongodbSuite) TestGetNextPreventConcurrentAccess(c *C) {
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestGetNextPreventConcurrentAccess(c)
+}
+
+func (s *MongodbSuite) TestUpdate(c *C) {
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestUpdate(c)
+}
+
+func (s *MongodbSuite) getBackend() *backend.MongoDb {
+	fbe, _ := backend.NewMongoDb(s.url, s.collection.Name)
+	return fbe
 }
