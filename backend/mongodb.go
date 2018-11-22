@@ -45,6 +45,11 @@ func (mdb *MongoDb) GetNextTodo(count int) ([]app.ProbeInfo, error) {
 	return result, err
 }
 
+// Update a probe after work is done
+func (mdb *MongoDb) Update(probe app.ProbeInfo) {
+
+}
+
 // Close Cleanup & Close
 func (mdb *MongoDb) Close() {
 	mdb.session.Close()
