@@ -50,15 +50,16 @@ func (s *MongodbSuite) SetUpSuite(c *C) {
 	s.url = url
 	rand.Seed(time.Now().UnixNano())
 	name := fmt.Sprintf("hounds_test%d", rand.Intn(1000))
+	name = "test"
 	s.collection = session.DB("").C(name)
 }
 
 func (s *MongodbSuite) SetUpTest(c *C) {
 	s.collection.DropCollection()
-	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC)})
-	s.collection.Insert(bson.M{"houndtype": "http-response", "nexttime": time.Date(2018, 11, 9, 12, 0, 0, 0, time.UTC)})
-	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2016, 11, 9, 12, 0, 0, 0, time.UTC)})
-	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2200, 11, 9, 12, 0, 0, 0, time.UTC)})
+	s.collection.Insert(bson.M{"probetype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 1})
+	s.collection.Insert(bson.M{"probetype": "http-response", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 30})
+	s.collection.Insert(bson.M{"probetype": "tcp-connect", "nexttime": time.Date(2016, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 30})
+	s.collection.Insert(bson.M{"probetype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 30})
 }
 
 func (s *MongodbSuite) TestNewMongoDb(c *C) {
