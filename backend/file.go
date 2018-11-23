@@ -15,7 +15,9 @@
 package backend
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/beaukode/gohound/app"
@@ -52,7 +54,7 @@ func NewFile(path string) (*File, error) {
 
 	probes := make([]*app.ProbeInfo, len(config.Probes), len(config.Probes))
 	for i, v := range config.Probes {
-		probes[i] = &app.ProbeInfo{Nexttime: time.Now(), Probetype: v.Type, ID: i}
+		probes[i] = &app.ProbeInfo{Nexttime: time.Now(), Probetype: v.Type, ID: fmt.Sprint(i), Interval: v.Interval}
 	}
 
 	return &File{config: config, probes: probes}, nil
@@ -82,8 +84,9 @@ func (f *File) GetNextTodo(count int) ([]app.ProbeInfo, error) {
 func (f *File) Update(probe app.ProbeInfo) {
 	probe.Lockuid = ""
 	probe.Locktime = time.Time{}
-	probe.Nexttime = time.Now().Add(time.Second * time.Duration(f.config.Probes[probe.ID].Interval))
-	f.probes[probe.ID] = &probe
+	probe.Nexttime = time.Now().Add(time.Second * time.Duration(probe.Interval))
+	i, _ := strconv.Atoi(probe.ID)
+	f.probes[i] = &probe
 }
 
 // Close Cleanup & Close

@@ -40,12 +40,43 @@ func NewMongoDb(url string, collection string) (*MongoDb, error) {
 // GetNextTodo Obtain things to do
 func (mdb *MongoDb) GetNextTodo(count int) ([]app.ProbeInfo, error) {
 	result := []app.ProbeInfo{}
-	err := mdb.collection.Find(bson.M{"nexttime": bson.M{"$lt": time.Now()}}).Limit(count).All(&result)
+	lockuid := app.GenerateLockUID()
 
-	return result, err
+	qry := bson.M{"nexttime": bson.M{"$lt": time.Now()}, "lockuid": nil}
+	update := set(bson.M{"lockuid": lockuid, "locktime": time.Now()})
+
+	bulk := mdb.collection.Bulk()
+	for i := 0; i < count; i++ {
+		bulk.Update(qry, update)
+	}
+	_, err := bulk.Run()
+	if err != nil {
+		return result, err
+	}
+
+	err = mdb.collection.Find(bson.M{"lockuid": lockuid}).All(&result)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+// Update a probe after work is done
+func (mdb *MongoDb) Update(probe app.ProbeInfo) {
+	data := bson.M{
+		"lockuid":  nil,
+		"locktime": nil,
+		"nexttime": time.Now().Add(time.Second * time.Duration(probe.Interval)),
+	}
+	mdb.collection.UpdateId(bson.ObjectId(probe.ID), set(data))
 }
 
 // Close Cleanup & Close
 func (mdb *MongoDb) Close() {
 	mdb.session.Close()
+}
+
+func set(data bson.M) bson.M {
+	return bson.M{"$set": data}
 }

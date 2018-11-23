@@ -20,9 +20,10 @@ import (
 
 // ProbeInfo Hold informations about a probe
 type ProbeInfo struct {
-	ID        int
+	ID        string `bson:"_id"`
 	Probetype string
 	Nexttime  time.Time
 	Lockuid   string
 	Locktime  time.Time
+	Interval  int
 }

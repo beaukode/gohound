@@ -50,15 +50,16 @@ func (s *MongodbSuite) SetUpSuite(c *C) {
 	s.url = url
 	rand.Seed(time.Now().UnixNano())
 	name := fmt.Sprintf("hounds_test%d", rand.Intn(1000))
+	name = "test"
 	s.collection = session.DB("").C(name)
 }
 
 func (s *MongodbSuite) SetUpTest(c *C) {
 	s.collection.DropCollection()
-	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC)})
-	s.collection.Insert(bson.M{"houndtype": "http-response", "nexttime": time.Date(2018, 11, 9, 12, 0, 0, 0, time.UTC)})
-	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2016, 11, 9, 12, 0, 0, 0, time.UTC)})
-	s.collection.Insert(bson.M{"houndtype": "tcp-connect", "nexttime": time.Date(2200, 11, 9, 12, 0, 0, 0, time.UTC)})
+	s.collection.Insert(bson.M{"probetype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 1})
+	s.collection.Insert(bson.M{"probetype": "http-response", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 30})
+	s.collection.Insert(bson.M{"probetype": "tcp-connect", "nexttime": time.Date(2016, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 30})
+	s.collection.Insert(bson.M{"probetype": "tcp-connect", "nexttime": time.Date(2017, 11, 9, 12, 0, 0, 0, time.UTC), "interval": 30})
 }
 
 func (s *MongodbSuite) TestNewMongoDb(c *C) {
@@ -67,16 +68,27 @@ func (s *MongodbSuite) TestNewMongoDb(c *C) {
 	c.Assert(mdb, FitsTypeOf, &backend.MongoDb{})
 }
 
-func (s *MongodbSuite) TestGetNextTodoReturnOnlyTodo(c *C) {
-	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
-	r, err := mdb.GetNextTodo(10)
-	c.Assert(err, IsNil)
-	c.Assert(r, HasLen, 3)
+func (s *MongodbSuite) TestGetNextTodo(c *C) {
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestGetNextTodo(c)
 }
 
 func (s *MongodbSuite) TestGetNextTodoUseLimit(c *C) {
-	mdb, _ := backend.NewMongoDb(s.url, s.collection.Name)
-	r, err := mdb.GetNextTodo(2)
-	c.Assert(err, IsNil)
-	c.Assert(r, HasLen, 2)
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestGetNextTodoUseLimit(c)
+}
+
+func (s *MongodbSuite) TestGetNextPreventConcurrentAccess(c *C) {
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestGetNextPreventConcurrentAccess(c)
+}
+
+func (s *MongodbSuite) TestUpdate(c *C) {
+	base := interfaceTests{backend: s.getBackend()}
+	base.TestUpdate(c)
+}
+
+func (s *MongodbSuite) getBackend() *backend.MongoDb {
+	fbe, _ := backend.NewMongoDb(s.url, s.collection.Name)
+	return fbe
 }
